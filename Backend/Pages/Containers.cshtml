@@ -1,0 +1,55 @@
+﻿@page
+@model Backend.Pages.ContainersModel
+@{
+    var containers = await Model.Containers;
+}
+
+<h1>Containers</h1>
+
+<table class="table table-sm table-striped table-hover">
+    <thead>
+        <tr>
+            <th scope="col">
+                Container Id
+            </th>
+            <th scope="col">
+                Block Id
+            </th>
+            <th scope="col">
+                Bay #
+            </th>
+            <th scope="col">
+                Stack #
+            </th>
+            <th scope="col">
+                Tier #
+            </th>
+            <th scope="col">
+                Arrival
+            </th>
+        </tr>
+    </thead>
+    @foreach (var container in containers)
+    {
+        <tr>
+            <th scope="row">
+                @container.Id
+            </th>
+            <td>
+                @container.BlockId
+            </td>
+            <td>
+                @container.BayNum
+            </td>
+            <td>
+                @container.StackNum
+            </td>
+            <td>
+                @container.TierNum
+            </td>
+            <td>
+                @container.ArrivedAt
+            </td>
+        </tr>
+    }
+</table>
