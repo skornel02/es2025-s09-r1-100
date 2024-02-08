@@ -2,11 +2,90 @@
 @model Backend.Pages.ContainersModel
 @{
     var containers = await Model.Containers;
+
+    var block1BRX = -1;
+    var block1BRZ = 11;
+    var block2BRX = 6;
+    var block2BRZ = 11;
+    var block3BRX = -1;
+    var block3BRZ = -1;
+    var block4BRX = 6;
+    var block4BRZ = -1;
 }
+<script src="~/lib/aframe.min.js"></script>
+<link rel="stylesheet" href="~/lib/datatables/jquery.dataTables.min.css"/>
 
 <h1>Containers</h1>
 
-<table class="table table-sm table-striped table-hover">
+<!--
+    X Y Z => X: left to right, Y: up down Z: forward backwards
+
+    Yard: 2x1x2 blocks
+
+    block: 5x5x5 containers
+
+    container: 1x1x2 ==> block: 5x5x10
+
+    pavement between blocks: 2 wide
+
+    BBBBB  BBBBB
+    BBBBB  BBBBB
+    BBBBB  BBBBB
+    BBBBB  BBBBB
+    BB3BB  BB4BB
+    BBBBB  BBBBB
+    BBBBB  BBBBB
+    BBBBB  BBBBB
+    BBBBB  BBBBB
+    BBBBB  BBBBB
+
+
+    BBBBB  BBBBB
+    BBBBB  BBBBB
+    BBBBB  BBBBB
+    BBBBB  BBBBB
+    BB1BB  BB2BB
+    BBBBB  BBBBB
+    BBBBB  BBBBB
+    BBBBB  BBBBB
+    BBBBB  BBBBB
+    BBBBB  BBBBB
+-->
+
+<div class="visualizer">
+    <a-scene embedded>
+        @* <a-box position="0 0.5 0" rotation="0 0 0" color="#4CC3D9" depth="2"></a-box> *@
+
+        <!-- Walkway -->
+        <a-plane position="0 0 0" rotation="-90 0 0" width="13" height="2" color="#919191"></a-plane>
+        <a-plane position="0 0 0" rotation="-90 0 0" width="2" height="26" color="#919191"></a-plane>
+
+        <a-plane position="0 0 12" rotation="-90 0 0" width="13" height="2" color="#919191"></a-plane>
+        <a-plane position="0 0 -12" rotation="-90 0 0" width="13" height="2" color="#919191"></a-plane>
+
+        <a-plane position="7 0 0" rotation="-90 0 0" width="2" height="26" color="#919191"></a-plane>
+        <a-plane position="-7 0 0" rotation="-90 0 0" width="2" height="26" color="#919191"></a-plane>
+
+        <!-- Block 1 -->
+        <a-plane position="@(block1BRX - 2.5) 0 @(block1BRZ - 5)" rotation="-90 0 0" width="5" height="10" color="#000000"></a-plane>
+        <a-entity position="@(block1BRX - 0.5) 0.01 @(block1BRZ + 0.5)" rotation="-90 0 0" text="value: A block; align: center; letterSpacing: -1; wrapCount: 20"></a-entity>
+        <a-entity position="@(block1BRX + 0.5) 0.01 @(block1BRZ - 0.5)" rotation="-90 90 0" text="value: A block; align: center; letterSpacing: -1; wrapCount: 20"></a-entity>
+        <a-entity position="@(block1BRX + 0.5) 0.01 @(block1BRZ - 9.5)" rotation="-90 90 0" text="value: A block; align: center; letterSpacing: -1; wrapCount: 20"></a-entity>
+
+        <!-- Block 2 -->
+        <a-plane position="@(block2BRX - 2.5) 0 @(block2BRZ - 5)" rotation="-90 0 0" width="5" height="10" color="#000000"></a-plane>
+
+        <!-- Block 3 -->
+        <a-plane position="@(block3BRX - 2.5) 0 @(block3BRZ - 5)" rotation="-90 0 0" width="5" height="10" color="#000000"></a-plane>
+        <!-- Block 4 -->
+        <a-plane position="@(block4BRX - 2.5) 0 @(block4BRZ - 5)" rotation="-90 0 0" width="5" height="10" color="#000000"></a-plane>
+
+        <!-- Misc -->
+        <a-sky color="#ECECEC"></a-sky>
+    </a-scene>
+</div>
+
+<table class="table table-sm table-striped table-hover" id="containers-table">
     <thead>
         <tr>
             <th scope="col">
@@ -14,7 +93,7 @@
             </th>
             <th scope="col">
                 Block Id
-            </th>
+            </th>   
             <th scope="col">
                 Bay #
             </th>
@@ -53,3 +132,13 @@
         </tr>
     }
 </table>
+
+@section Scripts {
+    <script src="~/lib/datatables/jquery.dataTables.min.js"></script>
+    <script>
+        let table = new DataTable('#containers-table', {
+            
+        });
+    </script>   
+}
+
