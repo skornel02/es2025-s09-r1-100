@@ -17,73 +17,63 @@
 
 <h1>Containers</h1>
 
-<!--
-    X Y Z => X: left to right, Y: up down Z: forward backwards
-
-    Yard: 2x1x2 blocks
-
-    block: 5x5x5 containers
-
-    container: 1x1x2 ==> block: 5x5x10
-
-    pavement between blocks: 2 wide
-
-    BBBBB  BBBBB
-    BBBBB  BBBBB
-    BBBBB  BBBBB
-    BBBBB  BBBBB
-    BB3BB  BB4BB
-    BBBBB  BBBBB
-    BBBBB  BBBBB
-    BBBBB  BBBBB
-    BBBBB  BBBBB
-    BBBBB  BBBBB
-
-
-    BBBBB  BBBBB
-    BBBBB  BBBBB
-    BBBBB  BBBBB
-    BBBBB  BBBBB
-    BB1BB  BB2BB
-    BBBBB  BBBBB
-    BBBBB  BBBBB
-    BBBBB  BBBBB
-    BBBBB  BBBBB
-    BBBBB  BBBBB
--->
-
 <div class="visualizer">
     <a-scene embedded>
-        @* <a-box position="0 0.5 0" rotation="0 0 0" color="#4CC3D9" depth="2"></a-box> *@
+        @*  *@
 
-        <!-- Walkway -->
-        <a-plane position="0 0 0" rotation="-90 0 0" width="13" height="2" color="#919191"></a-plane>
+        <!-- Walkway x => width, z => height -->
+@*         <a-plane position="0 0 0" rotation="-90 0 0" width="18" height="2" color="#919191"></a-plane>
         <a-plane position="0 0 0" rotation="-90 0 0" width="2" height="26" color="#919191"></a-plane>
 
-        <a-plane position="0 0 12" rotation="-90 0 0" width="13" height="2" color="#919191"></a-plane>
         <a-plane position="0 0 -12" rotation="-90 0 0" width="13" height="2" color="#919191"></a-plane>
 
         <a-plane position="7 0 0" rotation="-90 0 0" width="2" height="26" color="#919191"></a-plane>
-        <a-plane position="-7 0 0" rotation="-90 0 0" width="2" height="26" color="#919191"></a-plane>
+        <a-plane position="-7 0 0" rotation="-90 0 0" width="2" height="26" color="#919191"></a-plane> *@
+
+        @foreach(var floor in Model.Floors)
+        {
+            <a-plane position="@floor.GetPosition()" rotation="@floor.GetRotation()" width="@floor.XLength" height="@floor.ZLength" color="@floor.Color"></a-plane>            
+        }
+
+        @foreach(var container in containers)
+        {
+            <a-box id="@container.Id" position="@container.GetPosition()" rotation="0 0 0" color="@container.GetColor()" depth="2" src="/lib/border.png" cursor-listener></a-box>
+        }
+
+        <a-entity id="first-camera" camera="active: true;" look-controls wasd-controls="acceleration:65; fly:true" position="0 1.6 0">
+            <a-entity cursor="fuse: true; fuseTimeout: 500"
+                      position="0 0 -1"
+                      geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
+                      material="color: black; shader: flat">
+            </a-entity>
+        </a-entity>
+
+        <a-entity id="second-camera" camera wasd-controls position="0 5 0" rotation="0, 0, 0"></a-entity>
 
         <!-- Block 1 -->
-        <a-plane position="@(block1BRX - 2.5) 0 @(block1BRZ - 5)" rotation="-90 0 0" width="5" height="10" color="#000000"></a-plane>
         <a-entity position="@(block1BRX - 0.5) 0.01 @(block1BRZ + 0.5)" rotation="-90 0 0" text="value: A block; align: center; letterSpacing: -1; wrapCount: 20"></a-entity>
         <a-entity position="@(block1BRX + 0.5) 0.01 @(block1BRZ - 0.5)" rotation="-90 90 0" text="value: A block; align: center; letterSpacing: -1; wrapCount: 20"></a-entity>
         <a-entity position="@(block1BRX + 0.5) 0.01 @(block1BRZ - 9.5)" rotation="-90 90 0" text="value: A block; align: center; letterSpacing: -1; wrapCount: 20"></a-entity>
 
-        <!-- Block 2 -->
-        <a-plane position="@(block2BRX - 2.5) 0 @(block2BRZ - 5)" rotation="-90 0 0" width="5" height="10" color="#000000"></a-plane>
-
-        <!-- Block 3 -->
-        <a-plane position="@(block3BRX - 2.5) 0 @(block3BRZ - 5)" rotation="-90 0 0" width="5" height="10" color="#000000"></a-plane>
-        <!-- Block 4 -->
-        <a-plane position="@(block4BRX - 2.5) 0 @(block4BRZ - 5)" rotation="-90 0 0" width="5" height="10" color="#000000"></a-plane>
-
         <!-- Misc -->
         <a-sky color="#ECECEC"></a-sky>
     </a-scene>
+    <p>
+        Selected container: <span id="selectedContainer">None</span>
+    </p>
+    <button onclick="handleFreeCam()">
+        Free camera
+    </button>
+    <button onclick="handleFixCamera()">
+        Fix camera
+    </button>
 </div>
+
+<hr
+<hr />
+<hr />
+<hr />
+<hr />
 
 <table class="table table-sm table-striped table-hover" id="containers-table">
     <thead>
@@ -139,6 +129,32 @@
         let table = new DataTable('#containers-table', {
             
         });
+
+        AFRAME.registerComponent('cursor-listener', {
+            init: function () {
+                var lastIndex = -1;
+                var COLORS = ['red', 'green', 'blue'];
+                this.el.addEventListener('click', function (evt) {
+                    document.querySelector("#selectedContainer").innerHTML = evt.target.id;
+                });
+            }
+        });
+
+        function handleFreeCam() {
+            var secondCameraEl = document.querySelector('#second-camera');
+            secondCameraEl.setAttribute('camera', 'active', false);
+
+            var firstCameraEl = document.querySelector('#first-camera');
+            firstCameraEl.setAttribute('camera', 'active', true);
+        }
+
+        function handleFixCamera() {
+            var firstCameraEl = document.querySelector('#first-camera');
+            firstCameraEl.setAttribute('camera', 'active', false);
+
+            var secondCameraEl = document.querySelector('#second-camera');
+            secondCameraEl.setAttribute('camera', 'active', true);
+        }
     </script>   
 }
 
