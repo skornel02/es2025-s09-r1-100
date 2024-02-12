@@ -2,7 +2,10 @@
 
 public static class CSVExtension
 {
-    public static async Task<List<List<string>>> ParseCsvAsync(this IFormFile file, string separator = ",")
+    public static async Task<List<List<string>>> ParseCsvAsync(
+        this IFormFile file, 
+        string separator = ",", 
+        CancellationToken cancellationToken = default)
     {
         using var contentStream = file.OpenReadStream();
         using var reader = new StreamReader(contentStream);
@@ -11,7 +14,7 @@ public static class CSVExtension
 
         while (!reader.EndOfStream)
         {
-            var line = await reader.ReadLineAsync();
+            var line = await reader.ReadLineAsync(cancellationToken);
             if (line == null)
             {
                 continue;

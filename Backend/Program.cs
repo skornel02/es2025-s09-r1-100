@@ -1,5 +1,7 @@
 using Backend;
 using Backend.Endpoints;
+using Backend.Options;
+using Backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +15,10 @@ builder.Services.AddSwaggerGen(_ =>
 builder.Services.AddRazorPages();
 builder.Services.AddHttpClient();
 
+builder.Services.AddOptions<YardOptions>(YardOptions.SectionName);
+
 builder.Services.AddScoped<ApplicationDbContext>();
+builder.Services.AddScoped<ContainerService>();
 
 var app = builder.Build();
 

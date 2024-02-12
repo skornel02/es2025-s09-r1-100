@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Backend.Services;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Importing;
 using Shared.Schema;
@@ -10,11 +11,24 @@ public static class ContainerEndpoints
     public static IEndpointRouteBuilder MapContainerEndpoints(this IEndpointRouteBuilder builder)
     {
         builder.MapPost("/containers", async Task<Results<Ok<BulkImportResult>, BadRequest>> (
-            [FromBody] List<ContainerSchema> containers) =>
+            [FromBody] List<ContainerSchema> containers,
+            [FromServices] ContainerService service,
+            CancellationToken cancellationToken) =>
         {
-            var result = new BulkImportResult();
+            return TypedResults.Ok(await service.ImportContainers(containers));
+        })
+            .WithTags("Containers");
 
-            return TypedResults.Ok(result);
+        builder.MapPost("/containers/validate", async Task<Ok<List<string>>> (
+            [FromServices] ApplicationDbContext context,
+            [FromServices] ContainerService service) =>
+        {
+            var containers = await context.GetContainersAsync();
+            var validation = service.ValidateContainers(containers);
+
+            return TypedResults.Ok(validation.Where(_ => _.Value is false)
+                .Select(_ => _.Key.Id)
+                .ToList());
         })
             .WithTags("Containers");
 
