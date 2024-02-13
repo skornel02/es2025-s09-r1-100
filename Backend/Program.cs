@@ -15,10 +15,12 @@ builder.Services.AddSwaggerGen(_ =>
 builder.Services.AddRazorPages();
 builder.Services.AddHttpClient();
 
-builder.Services.AddOptions<YardOptions>(YardOptions.SectionName);
+builder.Services.Configure<YardOptions>(builder.Configuration.GetSection(YardOptions.SectionName));
+builder.Services.Configure<RenderOptions>(builder.Configuration.GetSection(RenderOptions.SectionName));
 
 builder.Services.AddScoped<ApplicationDbContext>();
 builder.Services.AddScoped<ContainerService>();
+builder.Services.AddScoped<RenderService>();
 
 var app = builder.Build();
 

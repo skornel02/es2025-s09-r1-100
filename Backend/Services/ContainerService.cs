@@ -26,11 +26,11 @@ public class ContainerService
         var existingContainers = await _context.GetContainersAsync(cancellationToken);
 
         var collidingContainers = FindCollidingContainers(existingContainers, containers);
-        var allContainers = containers.Concat(existingContainers).Except(collidingContainers);
+        var allContainers = containers.Concat(existingContainers).Except(collidingContainers).ToList();
 
         var validation = ValidateContainers(allContainers);
 
-        var validContainers = containers.Where(_ => validation.GetValueOrDefault(_) is true)
+        var validContainers = containers.Where(_ => validation.GetValueOrDefault(_.Id) is true)
             .ToList();
 
         foreach (var containerToCreate in validContainers)
@@ -38,7 +38,7 @@ public class ContainerService
             await _context.AddContainerAsync(containerToCreate, cancellationToken);
         }
 
-        var invalidContainers = containers.Where(_ => validation.GetValueOrDefault(_) is false)
+        var invalidContainers = containers.Where(_ => validation.GetValueOrDefault(_.Id) is false)
             .ToList();
 
         return new BulkImportResult
@@ -72,27 +72,27 @@ public class ContainerService
         return colliders;
     }
 
-    public Dictionary<ContainerSchema, bool> ValidateContainers(IEnumerable<ContainerSchema> containers)
+    public Dictionary<string, bool> ValidateContainers(List<ContainerSchema> containers)
     {
-        var results = new Dictionary<ContainerSchema, bool>();
+        var results = new Dictionary<string, bool>();
+        var options = _options.CurrentValue;
 
-        foreach (var container in containers)
+        foreach (var container in containers.OrderBy(_ => _.TierNum))
         {
             var isFloor = container.TierNum == 1;
             var isSupported = isFloor;
 
             if (!isFloor)
             {
-                // TODO: this sucks, floating can happen.
                 var containerBellow = containers.FirstOrDefault(_ => _.BlockId == container.BlockId
                     && _.StackNum == container.StackNum
                     && _.BayNum == container.BayNum
                     && _.TierNum == container.TierNum - 1);
+                var bellowSupported = containerBellow is null ? true : results[containerBellow.Id];
 
-                isSupported = containerBellow is not null;
+                isSupported = containerBellow is not null && bellowSupported;
             }
 
-            var options = _options.CurrentValue;
             var isWithinBounds = container.BlockId <= options.BlockAmount && container.BlockId > 0
                 && container.BayNum <= options.BaysPerBlock && container.BayNum > 0
                 && container.StackNum <= options.StacksPerBlock && container.StackNum > 0
@@ -103,7 +103,7 @@ public class ContainerService
                 isFloor || isSupported,
                 isWithinBounds);
 
-            results[container] = (isFloor || isSupported) && isWithinBounds;
+            results[container.Id] = (isFloor || isSupported) && isWithinBounds;
         }
 
         return results;

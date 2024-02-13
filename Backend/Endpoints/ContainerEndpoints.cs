@@ -24,10 +24,10 @@ public static class ContainerEndpoints
             [FromServices] ContainerService service) =>
         {
             var containers = await context.GetContainersAsync();
-            var validation = service.ValidateContainers(containers);
+            var validation = service.ValidateContainers(containers.ToList());
 
             return TypedResults.Ok(validation.Where(_ => _.Value is false)
-                .Select(_ => _.Key.Id)
+                .Select(_ => _.Key)
                 .ToList());
         })
             .WithTags("Containers");

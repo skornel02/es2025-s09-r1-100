@@ -1,116 +1,112 @@
 ﻿@page
 @model Backend.Pages.ContainersModel
 @{
-    var containers = await Model.Containers;
-
-    var block1BRX = -1;
-    var block1BRZ = 11;
-    var block2BRX = 6;
-    var block2BRZ = 11;
-    var block3BRX = -1;
-    var block3BRZ = -1;
-    var block4BRX = 6;
-    var block4BRZ = -1;
+    var containers = await Model.Context.GetContainersAsync();
+    var floorsRender = Model.RenderService.GetFloors();
+    var containersRender = Model.RenderService.GetContainers(containers.ToList());
+    var textsRender = Model.RenderService.GetTexts(containers.ToList());
 }
 <script src="~/lib/aframe.min.js"></script>
 <link rel="stylesheet" href="~/lib/datatables/jquery.dataTables.min.css"/>
 
 <h1>Containers</h1>
 
-<div class="visualizer">
-    <a-scene embedded>
-        @foreach(var floor in Model.Floors)
-        {
-            <a-plane position="@floor.GetPosition()" rotation="@floor.GetRotation()" width="@floor.XLength" height="@floor.ZLength" color="@floor.Color"></a-plane>            
-        }
+<div class="row">
+    <div class="col-3">
 
-        @foreach(var container in containers)
-        {
-            <a-box id="@container.Id" position="@container.GetPosition()" rotation="0 0 0" color="@container.GetColor()" depth="2" src="/lib/border.png" cursor-listener></a-box>
-        }
+    </div>
+    <div class="visualizer col-9">
+        <a-scene embedded>
+            @foreach (var floor in floorsRender)
+            {
+                <a-plane position="@floor.Position" rotation="@floor.Rotation" width="@floor.XLength" height="@floor.ZLength" color="@floor.Color"></a-plane>
+            }
 
-        <a-entity id="first-camera" camera="active: true;" look-controls wasd-controls="acceleration:65; fly:true" position="0 1.6 0">
-            <a-entity cursor="fuse: true; fuseTimeout: 500"
-                      position="0 0 -1"
-                      geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
-                      material="color: black; shader: flat">
+            @foreach (var container in containersRender)
+            {
+                <a-box id="@container.Id"
+                       position="@container.Position"
+                       rotation="@container.Rotation"
+                       color="@container.Color"
+                       width="@container.XLength"
+                       height="@container.YLength"
+                       depth="@container.ZLength"
+                       src="/lib/border.png"
+                       cursor-listener></a-box>
+            }
+
+            @foreach (var text in textsRender)
+            {
+                <a-entity position="@text.Position"
+                          rotation="@text.Rotation"
+                          text="@text.Text"></a-entity>
+            }
+
+            <a-entity id="first-camera" camera="active: true;" look-controls wasd-controls="acceleration:65; fly:true" position="0 1.6 0">
+                <a-entity cursor="fuse: true; fuseTimeout: 500"
+                          position="0 0 -1"
+                          geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
+                          material="color: black; shader: flat">
+                </a-entity>
             </a-entity>
-        </a-entity>
 
-        <a-entity id="second-camera" camera wasd-controls position="0 5 0" rotation="0, 0, 0"></a-entity>
+            <!-- Misc -->
+            <a-sky color="#ECECEC"></a-sky>
+        </a-scene>
+    </div>
+    <div class="col-12"><hr /></div>
+    <div class="col-12">
 
-        <!-- Block 1 -->
-        <a-entity position="@(block1BRX - 0.5) 0.01 @(block1BRZ + 0.5)" rotation="-90 0 0" text="value: A block; align: center; letterSpacing: -1; wrapCount: 20"></a-entity>
-        <a-entity position="@(block1BRX + 0.5) 0.01 @(block1BRZ - 0.5)" rotation="-90 90 0" text="value: A block; align: center; letterSpacing: -1; wrapCount: 20"></a-entity>
-        <a-entity position="@(block1BRX + 0.5) 0.01 @(block1BRZ - 9.5)" rotation="-90 90 0" text="value: A block; align: center; letterSpacing: -1; wrapCount: 20"></a-entity>
 
-        <!-- Misc -->
-        <a-sky color="#ECECEC"></a-sky>
-    </a-scene>
-    <p>
-        Selected container: <span id="selectedContainer">None</span>
-    </p>
-    <button onclick="handleFreeCam()">
-        Free camera
-    </button>
-    <button onclick="handleFixCamera()">
-        Fix camera
-    </button>
+        <table class="table table-sm table-striped table-hover" id="containers-table">
+            <thead>
+                <tr>
+                    <th scope="col">
+                        Container Id
+                    </th>
+                    <th scope="col">
+                        Block Id
+                    </th>
+                    <th scope="col">
+                        Bay #
+                    </th>
+                    <th scope="col">
+                        Stack #
+                    </th>
+                    <th scope="col">
+                        Tier #
+                    </th>
+                    <th scope="col">
+                        Arrival
+                    </th>
+                </tr>
+            </thead>
+            @foreach (var container in containers)
+            {
+                <tr>
+                    <th scope="row">
+                        @container.Id
+                    </th>
+                    <td>
+                        @container.BlockId
+                    </td>
+                    <td>
+                        @container.BayNum
+                    </td>
+                    <td>
+                        @container.StackNum
+                    </td>
+                    <td>
+                        @container.TierNum
+                    </td>
+                    <td>
+                        @container.ArrivedAt
+                    </td>
+                </tr>
+            }
+        </table>
+    </div>
 </div>
-
-<hr
-<hr />
-<hr />
-<hr />
-<hr />
-
-<table class="table table-sm table-striped table-hover" id="containers-table">
-    <thead>
-        <tr>
-            <th scope="col">
-                Container Id
-            </th>
-            <th scope="col">
-                Block Id
-            </th>   
-            <th scope="col">
-                Bay #
-            </th>
-            <th scope="col">
-                Stack #
-            </th>
-            <th scope="col">
-                Tier #
-            </th>
-            <th scope="col">
-                Arrival
-            </th>
-        </tr>
-    </thead>
-    @foreach (var container in containers)
-    {
-        <tr>
-            <th scope="row">
-                @container.Id
-            </th>
-            <td>
-                @container.BlockId
-            </td>
-            <td>
-                @container.BayNum
-            </td>
-            <td>
-                @container.StackNum
-            </td>
-            <td>
-                @container.TierNum
-            </td>
-            <td>
-                @container.ArrivedAt
-            </td>
-        </tr>
-    }
-</table>
 
 @section Scripts {
     <script src="~/lib/datatables/jquery.dataTables.min.js"></script>
@@ -118,32 +114,6 @@
         let table = new DataTable('#containers-table', {
             
         });
-
-        AFRAME.registerComponent('cursor-listener', {
-            init: function () {
-                var lastIndex = -1;
-                var COLORS = ['red', 'green', 'blue'];
-                this.el.addEventListener('click', function (evt) {
-                    document.querySelector("#selectedContainer").innerHTML = evt.target.id;
-                });
-            }
-        });
-
-        function handleFreeCam() {
-            var secondCameraEl = document.querySelector('#second-camera');
-            secondCameraEl.setAttribute('camera', 'active', false);
-
-            var firstCameraEl = document.querySelector('#first-camera');
-            firstCameraEl.setAttribute('camera', 'active', true);
-        }
-
-        function handleFixCamera() {
-            var firstCameraEl = document.querySelector('#first-camera');
-            firstCameraEl.setAttribute('camera', 'active', false);
-
-            var secondCameraEl = document.querySelector('#second-camera');
-            secondCameraEl.setAttribute('camera', 'active', true);
-        }
-    </script>   
+    </script>
 }
 
