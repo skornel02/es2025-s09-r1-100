@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Backend.Pages;
 
-public record Floor(int X, int Z, int XLength, int ZLength, string Color);
-
 public class ContainersModel : PageModel
 {
     public ApplicationDbContext Context { get; init; }

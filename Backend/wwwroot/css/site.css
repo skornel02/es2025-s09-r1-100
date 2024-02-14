@@ -24,3 +24,17 @@ body {
 .visualizer {
     height: 700px;
 }
+
+table.containermap {
+    border: 2px solid black;
+}
+
+table.containermap>tbody>tr>td{
+    width: 60px;
+    height: 60px;
+    overflow-wrap: anywhere;
+
+    border: 1px dotted black;
+
+    font-size: 75%;
+}

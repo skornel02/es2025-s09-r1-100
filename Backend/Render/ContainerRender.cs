@@ -10,4 +10,8 @@ public record ContainerRender
     public required int YLength { get; init; }
     public required int ZLength { get; init; }
     public required string Color { get; init; }
+
+    public required int LogicalX { get; init; }
+    public required int LogicalY { get; init; }
+    public required int LogicalZ { get; init; }
 }
