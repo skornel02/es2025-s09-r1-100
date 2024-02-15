@@ -56,7 +56,7 @@ public class RenderService
 
         double offsetX = ((logicX + 1) * renderOptions.WalkWayWidth) + (logicX * renderOptions.ContainerWidthX * yardOptions.BaysPerBlock);
         double offsetY = 0;
-        double offsetZ = ((logicZ + 1) * renderOptions.WalkWayWidth) + (logicZ * renderOptions.ContainerWidthZ * yardOptions.BaysPerBlock);
+        double offsetZ = ((logicZ + 1) * renderOptions.WalkWayWidth) + (logicZ * renderOptions.ContainerWidthZ * yardOptions.StacksPerBlock);
 
         return (offsetX, offsetY, offsetZ);
     }
@@ -245,9 +245,11 @@ public class RenderService
 
         var magicNumber = GetCubeNumber();
 
-        var lengthX = (yardOptions.BaysPerBlock * magicNumber) + magicNumber + 1;
-        var lengthZ = (yardOptions.StacksPerBlock * magicNumber) + magicNumber + 1;
+        var lengthX = (yardOptions.StacksPerBlock * magicNumber) + magicNumber + 1;
+        var lengthZ = (yardOptions.BaysPerBlock * magicNumber) + magicNumber + 1;
 
+        var pathXIndexes = Enumerable.Range(0, magicNumber + 1).Select(_ => _ * yardOptions.BaysPerBlock + _).ToArray();
+        var pathZIndexes = Enumerable.Range(0, magicNumber + 1).Select(_ => _ * yardOptions.StacksPerBlock + _).ToArray();
 
         for (int tier = 1; tier <= yardOptions.TiersPerBlock; tier++)
         {
@@ -258,6 +260,8 @@ public class RenderService
                 Level = tier,
                 RowCount = lengthX,
                 ColumnCount = lengthZ,
+                PathColumnIndexes = pathXIndexes,
+                PathRowIndexes = pathZIndexes,
             });
         }
 

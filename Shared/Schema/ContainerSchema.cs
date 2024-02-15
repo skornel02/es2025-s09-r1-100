@@ -2,6 +2,15 @@
 
 public class ContainerSchema
 {
+    public static readonly List<string> PropertyOrder = new() { 
+        nameof(Id),
+        nameof(BlockId),
+        nameof(BayNum),
+        nameof(StackNum),
+        nameof(TierNum),
+        nameof(ArrivedAt),
+    };
+
     public required string Id { get; set; }
 
     public required int BlockId { get; set; }

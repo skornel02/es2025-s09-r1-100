@@ -21,6 +21,7 @@ builder.Services.Configure<RenderOptions>(builder.Configuration.GetSection(Rende
 builder.Services.AddScoped<ApplicationDbContext>();
 builder.Services.AddScoped<ContainerService>();
 builder.Services.AddScoped<RenderService>();
+builder.Services.AddScoped<StatisticsService>();
 
 var app = builder.Build();
 

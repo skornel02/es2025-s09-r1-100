@@ -1,135 +1,44 @@
 ﻿@page
 @model Backend.Pages.ContainersModel
 @{
-    var containers = await Model.Context.GetContainersAsync();
-    var floorsRender = Model.RenderService.GetFloors();
-    var containersRender = Model.RenderService.GetContainers(containers.ToList());
-    var textsRender = Model.RenderService.GetTexts(containers.ToList());
-    var tablesRender = Model.RenderService.GetTables();
+    var containers = await Model.Context.GetAllContainersAsync();
 }
-<script src="~/lib/aframe.min.js"></script>
 <link rel="stylesheet" href="~/lib/datatables/jquery.dataTables.min.css"/>
 
 <h1 class="text-center">Containers</h1>
 
 <div class="row">
     <div class="col-12">
-        <hr />
-    </div>
-    <div class="col-12">
-        <h2 class="text-center">
-            Visual overview
-        </h2>
-    </div>
-    <div class="col-12">
-        <ul class="nav nav-tabs">
-            <li class="nav-item">
-                <a id="nav-container-3d" class="nav-link active" aria-current="page" href="#" onclick="switchTo3D()">3D konténer áttekintés</a>
-            </li>
-            <li class="nav-item">
-                <a id="nav-container-2d" class="nav-link" href="#" onclick="switchTo2D()">2D konténer áttekintés</a>
-            </li>
-        </ul>
-    </div>
-    <div id="container-2d-nav" class="col-12 col-md-2 col-lg-3">
-        <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-            @for (int i = 0; i < tablesRender.Count; i++)
-            {
-                var table = tablesRender[i];
-                <button class="nav-link @(i == 0 ? "active" : "")"
-                        id="v-pills-tab-@i"
-                        data-bs-toggle="pill"
-                        data-bs-target="#@table.Id"
-                        type="button"
-                        role="tab"
-                        aria-controls="v-pills-3d"
-                        aria-selected="true">
-                    @table.LevelName
-                </button>
-            }
+        <div class="row">
+            <div class="col-3">
+                <label for="blockFilter" class="form-label">Block filter</label>
+                <input type="email" class="form-control" id="blockFilter" onchange="handleFiltering()">
+            </div>
+            <div class="col-3">
+                <label for="bayFilter" class="form-label">Bay filter</label>
+                <input type="email" class="form-control" id="bayFilter" onchange="handleFiltering()">
+            </div>
+            <div class="col-3">
+                <label for="stackFilter" class="form-label">Stack filter</label>
+                <input type="email" class="form-control" id="stackFilter" onchange="handleFiltering()">
+            </div>
+            <div class="col-3">
+                <label for="tierFilter" class="form-label">Tier filter</label>
+                <input type="email" class="form-control" id="tierFilter" onchange="handleFiltering()">
+            </div>
         </div>
     </div>
-    <div id="container-2d-content" class="col-12 col-md-10 col-lg-9 tab-content" id="v-pills-tabContent">
-        @for (int i = 0; i < tablesRender.Count; i++)
-        {
-            var table = tablesRender[i];
-            <div class="tab-pane fade show @(i == 0 ? "active" : "")"
-                    id="@table.Id" 
-                    role="tabpanel"
-                    aria-labelledby="v-pills-tab-@i"
-                    tabindex="@i">
-                <table class="containermap">
-                    <tbody>
-                        @for (int row = 0; row < table.RowCount; row++)
-                        {
-                            <tr>
-                                @for (int column = 0; column < table.ColumnCount; column++)
-                                {
-                                    var container = containersRender.FirstOrDefault(_ => _.LogicalX == column
-                                        && _.LogicalZ == row
-                                        && _.LogicalY == table.Level - 1);
-                                    <td title="x: @column y: @table.Level z: @row">
-                                        @container?.Id
-                                    </td>
-                                }
-                            </tr>
-                        }
-                        </tbody>
-                </table>
-            </div>
-        }
-    </div>
-    <div id="container-3d-content" class="visualizer col-12">
-        <a-scene embedded>
-            @foreach (var floor in floorsRender)
-            {
-                <a-plane position="@floor.Position" rotation="@floor.Rotation" width="@floor.XLength" height="@floor.ZLength" color="@floor.Color"></a-plane>
-            }
-
-            @foreach (var container in containersRender)
-            {
-                <a-box id="@container.Id"
-                       position="@container.Position"
-                       rotation="@container.Rotation"
-                       color="@container.Color"
-                       width="@container.XLength"
-                       height="@container.YLength"
-                       depth="@container.ZLength"
-                       src="/lib/border.png"
-                       cursor-listener></a-box>
-            }
-
-            @foreach (var text in textsRender)
-            {
-                <a-entity position="@text.Position"
-                          rotation="@text.Rotation"
-                          text="@text.Text"></a-entity>
-            }
-
-            <a-entity id="first-camera" camera="active: true;" look-controls wasd-controls="acceleration:65; fly:true" position="0 1.6 0">
-                <a-entity cursor="fuse: true; fuseTimeout: 500"
-                          position="0 0 -1"
-                          geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
-                          material="color: black; shader: flat">
-                </a-entity>
-            </a-entity>
-
-            <!-- Misc -->
-            <a-sky color="#ECECEC"></a-sky>
-        </a-scene>
-    </div>
     <div class="col-12">
         <hr />
     </div>
     <div class="col-12">
-        <h2 class="text-center">
-            Tabulated data
-        </h2>
+        <div class="alert alert-dark alert-dismissible" role="alert">
+            To use multiple ordering use <pre class="d-inline">shift</pre> clicks.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     </div>
     <div class="col-12">
-
-
-        <table class="table table-sm table-striped table-hover" id="containers-table">
+        <table class="table table-striped table-hover" id="containers-table">
             <thead>
                 <tr>
                     <th scope="col">
@@ -152,29 +61,9 @@
                     </th>
                 </tr>
             </thead>
-            @foreach (var container in containers)
-            {
-                <tr>
-                    <th scope="row">
-                        @container.Id
-                    </th>
-                    <td>
-                        @container.BlockId
-                    </td>
-                    <td>
-                        @container.BayNum
-                    </td>
-                    <td>
-                        @container.StackNum
-                    </td>
-                    <td>
-                        @container.TierNum
-                    </td>
-                    <td>
-                        @container.ArrivedAt
-                    </td>
-                </tr>
-            }
+            <tbody>
+
+            </tbody>
         </table>
     </div>
 </div>
@@ -183,47 +72,56 @@
     <script src="~/lib/datatables/jquery.dataTables.min.js"></script>
     <script>
         let table = new DataTable('#containers-table', {
-            
+            serverSide: true,
+            ordering: true,
+            orderMulti: true,
+            ajax: {
+                url: '/api/ajax/containers',
+                type: 'GET'
+            },
+            columns: [
+                { 
+                    data: 'id' 
+                },
+                {
+                    data: 'blockId',
+                    type: 'num'
+                },
+                {
+                    data: 'bayNum',
+                    type: 'num'
+                },
+                {
+                    data: 'stackNum',
+                    type: 'num'
+                },
+                {
+                    data: 'tierNum',
+                    type: 'num'
+                },
+                { 
+                    data: 'arrivedAt',
+                    type: 'date'
+                }
+            ]
         });
 
-        function switchTo3D() {
-            switchToD(true);
+        function handleFiltering() {
+            const blockFilter = document.querySelector("#blockFilter");
+            const bayFilter = document.querySelector("#bayFilter");
+            const stackFilter = document.querySelector("#stackFilter");
+            const tierFilter = document.querySelector("#tierFilter");
+
+            table.columns(1)
+                .search(blockFilter.value)
+                .columns(2)
+                .search(bayFilter.value)
+                .columns(3)
+                .search(stackFilter.value)
+                .columns(4)
+                .search(tierFilter.value)
+                .draw();
         }
-
-        function switchTo2D() {
-            switchToD(false);
-        }
-
-        function switchToD(base) {
-            const navButton3D = document.querySelector("#nav-container-3d");
-            const navButton2D = document.querySelector("#nav-container-2d");
-
-            const nav2D = document.querySelector("#container-2d-nav");
-            const content2D = document.querySelector("#container-2d-content");
-            const content3D = document.querySelector("#container-3d-content");
-
-            if (base) {
-                navButton3D.classList.add("active");
-                navButton2D.classList.remove("active");
-
-                nav2D.classList.add("collapse");
-                content2D.classList.add("collapse");
-                content3D.classList.remove("collapse");
-            } else {
-                navButton3D.classList.remove("active");
-                navButton2D.classList.add("active");
-
-                nav2D.classList.remove("collapse");
-                content2D.classList.remove("collapse");
-                content3D.classList.add("collapse");
-            }
-        }
-
-        function onLoad() {
-            switchToD(true);
-        }
-
-        onLoad();
     </script>
 }
 

@@ -23,7 +23,7 @@ public class ContainerService
 
     public async Task<BulkImportResult> ImportContainers(List<ContainerSchema> containers, CancellationToken cancellationToken = default)
     {
-        var existingContainers = await _context.GetContainersAsync(cancellationToken);
+        var existingContainers = await _context.GetAllContainersAsync(cancellationToken);
 
         var collidingContainers = FindCollidingContainers(existingContainers, containers);
         var allContainers = containers.Concat(existingContainers).Except(collidingContainers).ToList();
@@ -88,7 +88,7 @@ public class ContainerService
                     && _.StackNum == container.StackNum
                     && _.BayNum == container.BayNum
                     && _.TierNum == container.TierNum - 1);
-                var bellowSupported = containerBellow is null ? true : results[containerBellow.Id];
+                var bellowSupported = containerBellow is null || results[containerBellow.Id];
 
                 isSupported = containerBellow is not null && bellowSupported;
             }

@@ -1,0 +1,205 @@
+﻿@page
+@model Backend.Pages.DashboardModel
+@{
+    var containers = await Model.Context.GetAllContainersAsync();
+    var statistics = Model.StatisticsService.GetStatistics(containers);
+    var floorsRender = Model.RenderService.GetFloors();
+    var containersRender = Model.RenderService.GetContainers(containers);
+    var textsRender = Model.RenderService.GetTexts(containers);
+    var tablesRender = Model.RenderService.GetTables();
+}
+
+<script src="~/lib/aframe.min.js"></script>
+
+<h1 class="text-center"> Dashboard </h1>
+
+<hr />
+<h2> Overview </h2>
+<div class="row">
+    <div class="col-12">
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a id="nav-container-3d" class="nav-link active" aria-current="page" href="#container-3d-info" onclick="switchTo3D()">3D konténer áttekintés</a>
+            </li>
+            <li class="nav-item">
+                <a id="nav-container-2d" class="nav-link" href="#container-2d-nav" onclick="switchTo2D()">2D konténer áttekintés</a>
+            </li>
+        </ul>
+    </div>
+    <div id="container-2d-nav" class="col-12 col-md-2 col-lg-3">
+        <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+            @for (int i = 0; i < tablesRender.Count; i++)
+            {
+                var table = tablesRender[i];
+                <button class="nav-link @(i == 0 ? "active" : "")"
+                        id="v-pills-tab-@i"
+                        data-bs-toggle="pill"
+                        data-bs-target="#@table.Id"
+                        type="button"
+                        role="tab"
+                        aria-controls="v-pills-3d"
+                        aria-selected="true">
+                    @table.LevelName
+                </button>
+            }
+        </div>
+    </div>
+    <div id="container-2d-content" class="col-12 col-md-10 col-lg-9 tab-content">
+        @for (int i = 0; i < tablesRender.Count; i++)
+        {
+            var table = tablesRender[i];
+            <div class="tab-pane fade show @(i == 0 ? "active" : "")"
+                 id="@table.Id"
+                 role="tabpanel"
+                 aria-labelledby="v-pills-tab-@i"
+                 tabindex="@i">
+                <table class="containermap">
+                    <tbody>
+                        @for (int row = 0; row < table.RowCount; row++)
+                        {
+                            <tr>
+                                @for (int column = 0; column < table.ColumnCount; column++)
+                                {
+                                    var container = containersRender.FirstOrDefault(_ => _.LogicalX == column
+                                    && _.LogicalZ == row
+                                    && _.LogicalY == table.Level - 1);
+                                    var isPath = table.PathRowIndexes.Contains(row) || table.PathColumnIndexes.Contains(column);
+
+                                    <td title="x: @column y: @table.Level z: @row" class="ratio ratio-1x1 @(isPath ? "bg-dark" : "")">
+                                        <div class="text-center d-flex flex-column justify-content-center">
+                                            @container?.Id
+                                        </div>
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+    <div id="container-3d-info" class="col-12">
+        <div class="alert alert-dark" role="alert">
+            In 3D space you can navigate by moving your cursor and using the
+            <pre class="d-inline">A</pre>
+            <pre class="d-inline">W</pre>
+            <pre class="d-inline">S</pre>
+            <pre class="d-inline">D</pre>
+            buttons on your keyboard
+        </div>
+    </div>
+    <div id="container-3d-content" class="visualizer col-12">
+        <a-scene embedded>
+            @foreach (var floor in floorsRender)
+            {
+                <a-plane position="@floor.Position" rotation="@floor.Rotation" width="@floor.XLength" height="@floor.ZLength" color="@floor.Color"></a-plane>
+            }
+
+            @foreach (var container in containersRender)
+            {
+                <a-box id="@container.Id"
+                       position="@container.Position"
+                       rotation="@container.Rotation"
+                       color="@container.Color"
+                       width="@container.XLength"
+                       height="@container.YLength"
+                       depth="@container.ZLength"
+                       src="/lib/border.png"
+                       cursor-listener></a-box>
+            }
+
+            @foreach (var text in textsRender)
+            {
+                <a-entity position="@text.Position"
+                          rotation="@text.Rotation"
+                          text="@text.Text"></a-entity>
+            }
+
+            <a-entity id="first-camera" camera="active: true;" look-controls wasd-controls="acceleration:65; fly:true" position="0 1.6 0">
+                <a-entity cursor="fuse: true; fuseTimeout: 500"
+                          position="0 0 -1"
+                          geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
+                          material="color: black; shader: flat">
+                </a-entity>
+            </a-entity>
+
+            <!-- Misc -->
+            <a-sky color="#ECECEC"></a-sky>
+        </a-scene>
+    </div>
+</div>
+
+<hr />
+<h2> Statistics </h2>
+<div class="row">
+    @foreach (var stat in statistics.OrderBy(_ => _.BlockId))
+    {
+        <div class="my-2 col-12 col-sm-6 col-md-4">
+            <div class="card mx-auto" style="width: 18rem;">
+                <div class="card-body">
+                    <h5 class="card-title">Block #@stat.BlockId</h5>
+                    <p class="card-text">
+                        The container has @stat.EmptyPositions empty positions (@(stat.Capacity)% full) 
+                        with @stat.EmptyBays empty bays and @stat.EmptyStacks empty stacks.
+                        </p>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Oldest container: @stat.OldestContainerId</li>
+                    <li class="list-group-item">Newest container: @stat.NewestContainerId</li>
+                    <li class="list-group-item">Average container age: @stat.AverageAge (days)</li>
+                </ul>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="~/lib/datatables/jquery.dataTables.min.js"></script>
+    <script>
+        let table = new DataTable('#containers-table', {
+
+        });
+
+        function switchTo3D() {
+            switchToD(true);
+        }
+
+        function switchTo2D() {
+            switchToD(false);
+        }
+
+        function switchToD(base) {
+            const navButton3D = document.querySelector("#nav-container-3d");
+            const navButton2D = document.querySelector("#nav-container-2d");
+
+            const nav2D = document.querySelector("#container-2d-nav");
+            const content2D = document.querySelector("#container-2d-content");
+            const info3D = document.querySelector("#container-3d-info");
+            const content3D = document.querySelector("#container-3d-content");
+
+            if (base) {
+                navButton3D.classList.add("active");
+                navButton2D.classList.remove("active");
+
+                nav2D.classList.add("collapse");
+                content2D.classList.add("collapse");
+                content3D.classList.remove("collapse");
+                info3D.classList.remove("collapse");
+            } else {
+                navButton3D.classList.remove("active");
+                navButton2D.classList.add("active");
+
+                nav2D.classList.remove("collapse");
+                content2D.classList.remove("collapse");
+                content3D.classList.add("collapse");
+                info3D.classList.add("collapse");
+            }
+        }
+
+        function onLoad() {
+            switchToD(true);
+        }
+
+        onLoad();
+    </script>
+}

@@ -30,11 +30,12 @@ table.containermap {
 }
 
 table.containermap>tbody>tr>td{
-    width: 60px;
-    height: 60px;
+    width: 65px;
     overflow-wrap: anywhere;
 
     border: 1px dotted black;
+}
 
-    font-size: 75%;
+table.containermap > tbody > tr > td > div {
+    font-size: 0.80em;
 }
