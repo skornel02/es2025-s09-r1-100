@@ -25,12 +25,28 @@ public class ContainerService
     {
         var existingContainers = await _context.GetAllContainersAsync(cancellationToken);
 
-        var collidingContainers = FindCollidingContainers(existingContainers, containers);
-        var allContainers = containers.Concat(existingContainers).Except(collidingContainers).ToList();
+        var duplicateIdContainers = containers.Where(_ => existingContainers.Any(__ => __.Id == _.Id))
+            .ToList();
+
+        if (duplicateIdContainers.Any())
+        {
+            _logger.LogWarning("Tried to import duplicate ids: [{ids}]", string.Join(", ", duplicateIdContainers.Select(_ => _.Id)));
+        }
+
+        var collidingContainers = FindCollidingContainers(existingContainers, containers.Except(duplicateIdContainers));
+
+        var allContainers = containers
+            .Except(collidingContainers)
+            .Except(duplicateIdContainers)
+            .Concat(existingContainers)
+            .ToList();
 
         var validation = ValidateContainers(allContainers);
 
-        var validContainers = containers.Where(_ => validation.GetValueOrDefault(_.Id) is true)
+        var validContainers = containers
+            .Except(collidingContainers)
+            .Except(duplicateIdContainers)
+            .Where(_ => validation.GetValueOrDefault(_.Id) is true)
             .ToList();
 
         foreach (var containerToCreate in validContainers)
@@ -38,13 +54,16 @@ public class ContainerService
             await _context.AddContainerAsync(containerToCreate, cancellationToken);
         }
 
-        var invalidContainers = containers.Where(_ => validation.GetValueOrDefault(_.Id) is false)
+        var validationFailedContainers = containers.Where(_ => validation.ContainsKey(_.Id) && validation[_.Id] is false).ToList();
+        var invalidContainers = validationFailedContainers
+            .Concat(collidingContainers)
+            .Concat(duplicateIdContainers)
             .ToList();
 
         return new BulkImportResult
         {
             Success = validContainers.Count,
-            IncorrectPositions = invalidContainers.Concat(collidingContainers)
+            IncorrectPositions = invalidContainers
                 .Select(_ => _.Id)
                 .ToList()
         };

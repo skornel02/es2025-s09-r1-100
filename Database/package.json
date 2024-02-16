@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "json-server --watch database.json --port 3000"
+    "start": "json-server database.json --port 3000"
   },
   "dependencies": {
     "json-server": "0.17.4"

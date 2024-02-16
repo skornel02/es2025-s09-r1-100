@@ -34,7 +34,7 @@ public class StatisticsService
             return new BlockStatistics
             {
                 BlockId = _.Key,
-                Capacity = Math.Round(usedCapacity / (double)blockTotalCapacity, 2),
+                Capacity = Math.Round(100 * usedCapacity / (double)blockTotalCapacity, 2),
                 AverageAge = Math.Round(averageAgeInDays, 2),
                 OldestContainerId = oldest?.Id ?? "no containers",
                 NewestContainerId = youngest?.Id ?? "no containers",
