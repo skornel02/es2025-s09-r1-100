@@ -100,13 +100,13 @@ public class RenderService
         {
             var (offsetX, offsetY, offsetZ) = GetBlockOffset(blockIndex);
             var xLength = renderOptions.ContainerWidthX * yardOptions.BaysPerBlock;
-            var zLengtn = renderOptions.ContainerWidthZ * yardOptions.StacksPerBlock;
+            var zLength = renderOptions.ContainerWidthZ * yardOptions.StacksPerBlock;
 
             floors.Add(new()
             {
                 XLength = xLength,
-                ZLength = zLengtn,
-                Position = CreatePosition(offsetX, offsetY, offsetZ, xLength, 0, zLengtn),
+                ZLength = zLength,
+                Position = CreatePosition(offsetX, offsetY, offsetZ, xLength, 0, zLength),
                 Rotation = CreateRotation(-90, 0, 0),
                 Color = "#1bc0f7"
             });
@@ -148,9 +148,9 @@ public class RenderService
                 Position = CreatePosition(blockOffsetX + offsetX,
                     blockOffsetY + offsetY,
                     blockOffsetZ + offsetZ,
-                    widthZ / 2,
+                    widthX,
                     widthY,
-                    widthZ / 2),
+                    widthZ),
                 Rotation = CreateRotation(0, 0, 0),
 
                 LogicalX = logicalOffsetX + logicalBlockOffsetX,
@@ -194,7 +194,7 @@ public class RenderService
                     blockOffsetZ + offsetZ,
                     widthX,
                     widthY,
-                    3 * widthZ / 2),
+                    widthZ + widthZ),
                 Rotation = CreateRotation(0, 0, 0),
             });
 
@@ -207,7 +207,7 @@ public class RenderService
                     blockOffsetZ + offsetZ,
                     widthX,
                     widthY,
-                    -widthZ / 2),
+                    widthZ - widthZ),
                 Rotation = CreateRotation(180, 0, 180),
             });
         }
