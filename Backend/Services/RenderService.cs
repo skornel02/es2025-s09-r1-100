@@ -25,9 +25,11 @@ public class RenderService
     private string CreatePosition(double x, double y, double z, double sizeX, double sizeY, double sizeZ)
         => CreatePosition(x + (sizeX / 2), y + (sizeY / 2), z + (sizeZ / 2));
 
-    private string CreatePosition(double x, double y, double z) => $"{x - _renderOptions.CurrentValue.CenterOffsetX} {y} {z - _renderOptions.CurrentValue.CenterOffsetZ}";
+    private string CreatePosition(double x, double y, double z) => $"{x - _renderOptions.CurrentValue.CenterOffsetX} {y} {z - _renderOptions.CurrentValue.CenterOffsetZ}"
+        .Replace(",", ".");
 
-    private string CreateRotation(double x, double y, double z) => $"{x} {y} {z}";
+    private string CreateRotation(double x, double y, double z) => $"{x} {y} {z}"
+        .Replace(",", ".");
 
     private (int x, int y, int z) GetLogicalOffset(int blockId)
     {
