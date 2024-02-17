@@ -175,6 +175,8 @@ public class RenderService
 
         var texts = new List<TextRender>();
 
+        const string TextSettings = "font: /fonts/Roboto-msdf.json; align: center; letterSpacing: -1; wrapCount: 20; color: #000000";
+
         foreach (var container in containers)
         {
             var (blockOffsetX, blockOffsetY, blockOffsetZ) = GetBlockOffset(container.BlockId);
@@ -186,7 +188,7 @@ public class RenderService
             // front text
             texts.Add(new()
             {
-                Text = $"value: {container.Id}; align: center; letterSpacing: -1; wrapCount: 20; color: #000000",
+                Text = $"value: {container.Id}; {TextSettings}",
                 Position = CreatePosition(blockOffsetX + offsetX,
                     blockOffsetY + offsetY,
                     blockOffsetZ + offsetZ,
@@ -199,7 +201,7 @@ public class RenderService
             // rear text
             texts.Add(new()
             {
-                Text = $"value: {container.Id}; align: center; letterSpacing: -1; wrapCount: 20; color: #000000",
+                Text = $"value: {container.Id}; {TextSettings}",
                 Position = CreatePosition(blockOffsetX + offsetX,
                     blockOffsetY + offsetY,
                     blockOffsetZ + offsetZ,
@@ -217,7 +219,7 @@ public class RenderService
 
             texts.Add(new()
             {
-                Text = $"value: Block #{blockIndex}; align: center; letterSpacing: -1; wrapCount: 20; color: #000000",
+                Text = $"value: Block #{blockIndex}; {TextSettings}",
                 Position = CreatePosition(blockOffsetX + (renderOptions.ContainerWidthX * yardOptions.BaysPerBlock / 2),
                     blockOffsetY,
                     blockOffsetZ + (renderOptions.ContainerWidthZ * yardOptions.StacksPerBlock)),
@@ -226,7 +228,7 @@ public class RenderService
 
             texts.Add(new()
             {
-                Text = $"value: Block #{blockIndex}; align: center; letterSpacing: -1; wrapCount: 20; color: #000000",
+                Text = $"value: Block #{blockIndex}; {TextSettings}",
                 Position = CreatePosition(blockOffsetX + (renderOptions.ContainerWidthX * yardOptions.BaysPerBlock / 2),
                     blockOffsetY,
                     blockOffsetZ),

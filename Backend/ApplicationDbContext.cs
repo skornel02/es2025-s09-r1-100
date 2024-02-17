@@ -4,7 +4,7 @@ using System.Net;
 
 namespace Backend;
 
-public class ApplicationDbContext
+public class ApplicationDbContext : IApplicationDbContext
 {
     public readonly HttpClient _httpClient;
 
@@ -15,7 +15,7 @@ public class ApplicationDbContext
     }
 
     public async Task<DatabaseResponse<ContainerSchema>> GetContainersPaginatedAsync(
-        DatabaseQueryParams param, 
+        DatabaseQueryParams param,
         CancellationToken cancellationToken = default)
     {
         var globalSearch = param.GlobalSearch is null ? "" : $"&q=" + WebUtility.UrlEncode(param.GlobalSearch);
@@ -46,11 +46,6 @@ public class ApplicationDbContext
     public async Task AddContainerAsync(ContainerSchema container, CancellationToken cancellationToken = default)
     {
         await _httpClient.PostAsJsonAsync("/containers", container, cancellationToken);
-    }
-
-    public async Task DeleteContainerAsync(ContainerSchema container, CancellationToken cancellationToken = default)
-    {
-        await DeleteContainerAsync(container.Id, cancellationToken);
     }
 
     public async Task DeleteContainerAsync(string id, CancellationToken cancellationToken = default)

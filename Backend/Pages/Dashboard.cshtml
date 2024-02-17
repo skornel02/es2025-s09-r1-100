@@ -1,6 +1,7 @@
 ﻿@page
 @model Backend.Pages.DashboardModel
 @{
+    ViewData["Title"] = "Dashboard";
     var containers = await Model.Context.GetAllContainersAsync();
     var statistics = Model.StatisticsService.GetStatistics(containers);
     var floorsRender = Model.RenderService.GetFloors();

@@ -4,9 +4,9 @@ namespace Backend.Pages;
 
 public class ContainersModel : PageModel
 {
-    public ApplicationDbContext Context { get; init; }
+    public IApplicationDbContext Context { get; init; }
 
-    public ContainersModel(ApplicationDbContext context)
+    public ContainersModel(IApplicationDbContext context)
     {
         Context = context;
     }

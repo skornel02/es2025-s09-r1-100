@@ -28,9 +28,15 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="/Containers">Containers</a>
                         </li>
+                        @{
+                            #if DEBUG
+                        }
                         <li class="nav-item">
                             <a class="nav-link text-dark" href="/swagger">Development</a>
                         </li>
+                        @{
+                            #endif
+                        }
                     </ul>
                 </div>
             </div>

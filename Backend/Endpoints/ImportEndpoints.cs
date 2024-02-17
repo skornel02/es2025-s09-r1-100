@@ -21,7 +21,9 @@ public static class ImportEndpoints
             return TypedResults.Ok(await service.ImportContainers(containers));
         })
             .WithTags("Container import")
-            .DisableAntiforgery();
+            .DisableAntiforgery()
+            .WithDescription("Bulk import endpoint. The data will be validated for ID collision and physical collision.")
+            .WithOpenApi();
 
         return builder;
     }

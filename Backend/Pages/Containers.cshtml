@@ -1,6 +1,7 @@
 ﻿@page
 @model Backend.Pages.ContainersModel
 @{
+    ViewData["Title"] = "Containers";
     var containers = await Model.Context.GetAllContainersAsync();
 }
 <link rel="stylesheet" href="~/lib/datatables/jquery.dataTables.min.css"/>
@@ -66,6 +67,28 @@
             </tbody>
         </table>
     </div>
+    <div class="col-12">
+        <hr />
+    </div>
+    <div class="col-12 col-md-6">
+        <h2>Import CSV</h2>
+        <div class="alert alert-warning" role="alert">
+            After submitting a CSV you will not be redirected here.
+        </div>
+        <form method="post" enctype="multipart/form-data" action="/api/containers/import">
+            <label for="csvInput" class="form-label">CSV to import</label>
+            <input class="form-control" type="file" id="csvInput" name="csv" accept=".csv" />
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+    <div class="col-12 col-md-6">
+        <h2>Import JSON</h2>
+        <form method="get" onsubmit="handleJsonImport(event)">
+            <label for="jsonInput" class="form-label">JSON to import</label>
+            <input class="form-control" type="file" id="jsonInput" name="json" accept=".json" />
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
 </div>
 
 @section Scripts {
@@ -121,6 +144,29 @@
                 .columns(4)
                 .search(tierFilter.value)
                 .draw();
+        }
+
+        async function handleJsonImport(e) {
+            e.preventDefault();
+            const fileElem = document.querySelector("#jsonInput");
+            try {
+                const file = fileElem.files.item(0);
+                const content = await file.text();
+
+                const resp = await fetch("/api/containers", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: content
+                });
+
+                alert("Json upload status: " + resp.status + " with message: " + await resp.text())
+
+                table.ajax.reload();
+            } catch (e) {
+                alert("Error while sending JSON to server: " + e);
+            }
         }
     </script>
 }

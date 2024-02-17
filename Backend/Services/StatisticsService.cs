@@ -21,7 +21,7 @@ public class StatisticsService
         var blockTotalCapacity = yardOptions.BaysPerBlock * yardOptions.StacksPerBlock * yardOptions.TiersPerBlock;
         var now = DateTime.Now;
 
-        var statistics= containers.GroupBy(_ => _.BlockId).Select(_ =>
+        var statistics = containers.GroupBy(_ => _.BlockId).Select(_ =>
         {
             var usedCapacity = _.Count();
             var averageAgeInDays = _.Select(_ => now.Subtract(_.ArrivedAt).TotalDays).Average();

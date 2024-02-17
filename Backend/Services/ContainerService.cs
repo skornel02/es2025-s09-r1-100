@@ -9,12 +9,12 @@ public class ContainerService
 {
     private readonly ILogger<ContainerService> _logger;
     private readonly IOptionsMonitor<YardOptions> _options;
-    private readonly ApplicationDbContext _context;
+    private readonly IApplicationDbContext _context;
 
     public ContainerService(
         ILogger<ContainerService> logger,
         IOptionsMonitor<YardOptions> options,
-        ApplicationDbContext context)
+        IApplicationDbContext context)
     {
         _logger = logger;
         _options = options;

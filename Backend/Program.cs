@@ -18,7 +18,7 @@ builder.Services.AddHttpClient();
 builder.Services.Configure<YardOptions>(builder.Configuration.GetSection(YardOptions.SectionName));
 builder.Services.Configure<RenderOptions>(builder.Configuration.GetSection(RenderOptions.SectionName));
 
-builder.Services.AddScoped<ApplicationDbContext>();
+builder.Services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
 builder.Services.AddScoped<ContainerService>();
 builder.Services.AddScoped<RenderService>();
 builder.Services.AddScoped<StatisticsService>();

@@ -12,7 +12,7 @@ public static class StatisticsEndpoints
     public static IEndpointRouteBuilder MapStatisticsEndpoints(this IEndpointRouteBuilder builder)
     {
         builder.MapGet("blocks/stat", async Task<Results<Ok<List<BlockStatistics>>, BadRequest>> (
-            [FromServices] ApplicationDbContext context,
+            [FromServices] IApplicationDbContext context,
             [FromServices] StatisticsService statisticsService,
             CancellationToken cancellationToken
             ) =>
@@ -21,7 +21,9 @@ public static class StatisticsEndpoints
 
             return TypedResults.Ok(statisticsService.GetStatistics(containers));
         })
-            .WithTags("Statistics");
+            .WithTags("Statistics")
+            .WithDescription("Create statistics for each block.")
+            .WithOpenApi();
 
         return builder;
     }

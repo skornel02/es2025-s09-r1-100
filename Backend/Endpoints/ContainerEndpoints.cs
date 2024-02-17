@@ -12,14 +12,17 @@ public static class ContainerEndpoints
     public static IEndpointRouteBuilder MapContainerEndpoints(this IEndpointRouteBuilder builder)
     {
         builder.MapGet("/containers", async Task<Results<Ok<List<ContainerSchema>>, BadRequest>> (
-            [FromServices] ApplicationDbContext context,
+            [FromServices] IApplicationDbContext context,
             CancellationToken cancellationToken
-            ) => {
-                var containers = await context.GetAllContainersAsync(cancellationToken);
+            ) =>
+        {
+            var containers = await context.GetAllContainersAsync(cancellationToken);
 
-                return TypedResults.Ok(containers);
+            return TypedResults.Ok(containers);
         })
-            .WithTags("Containers");
+            .WithTags("Containers")
+            .WithDescription("Returns all the containers in the database.")
+            .WithOpenApi();
 
         builder.MapGet("/ajax/containers", async Task<Results<Ok<AjaxContainer<ContainerSchema>>, BadRequest>> (
             [FromQuery(Name = "draw")] int draw,
@@ -44,100 +47,104 @@ public static class ContainerEndpoints
             [FromQuery(Name = "columns[3][search][value]")] string search4,
             [FromQuery(Name = "columns[4][search][value]")] string search5,
             [FromQuery(Name = "columns[5][search][value]")] string search6,
-            [FromServices] ApplicationDbContext context,
+            [FromServices] IApplicationDbContext context,
             CancellationToken cancellationToken
-            ) => {
-                var globalSearchValue = string.IsNullOrEmpty(globalSearch) ? null : globalSearch;
-                var littleSearchValue = new Dictionary<string, string>();
-                var sorting = "";
-                var ordering = "";
-                if (order1Column.HasValue)
-                {
-                    sorting += ContainerSchema.PropertyOrder[order1Column.Value][..1].ToLower() +
-                        ContainerSchema.PropertyOrder[order1Column.Value][1..];
-                    ordering += order1Dir == "desc" ? "desc" : "asc";
-                }
-                if (order2Column.HasValue)
-                {
-                    sorting += ",";
-                    sorting += ContainerSchema.PropertyOrder[order2Column.Value][..1].ToLower() +
-                        ContainerSchema.PropertyOrder[order2Column.Value][1..];
-                    ordering += ",";
-                    ordering += order2Dir == "desc" ? "desc" : "asc";
-                }
-                if (order3Column.HasValue)
-                {
-                    sorting += ",";
-                    sorting += ContainerSchema.PropertyOrder[order3Column.Value][..1].ToLower() +
-                        ContainerSchema.PropertyOrder[order3Column.Value][1..];
-                    ordering += ",";
-                    ordering += order3Dir == "desc" ? "desc" : "asc";
-                }
-                if (order4Column.HasValue)
-                {
-                    sorting += ",";
-                    sorting += ContainerSchema.PropertyOrder[order4Column.Value][..1].ToLower() +
-                        ContainerSchema.PropertyOrder[order4Column.Value][1..];
-                    ordering += ",";
-                    ordering += order3Dir == "desc" ? "desc" : "asc";
-                }
-                if (order5Column.HasValue)
-                {
-                    sorting += ",";
-                    sorting += ContainerSchema.PropertyOrder[order5Column.Value][..1].ToLower() +
-                        ContainerSchema.PropertyOrder[order5Column.Value][1..];
-                    ordering += ",";
-                    ordering += order3Dir == "desc" ? "desc" : "asc";
-                }
+            ) =>
+        {
+            var globalSearchValue = string.IsNullOrEmpty(globalSearch) ? null : globalSearch;
+            var littleSearchValue = new Dictionary<string, string>();
+            var sorting = "";
+            var ordering = "";
+            if (order1Column.HasValue)
+            {
+                sorting += ContainerSchema.PropertyOrder[order1Column.Value][..1].ToLower() +
+                    ContainerSchema.PropertyOrder[order1Column.Value][1..];
+                ordering += order1Dir == "desc" ? "desc" : "asc";
+            }
+            if (order2Column.HasValue)
+            {
+                sorting += ",";
+                sorting += ContainerSchema.PropertyOrder[order2Column.Value][..1].ToLower() +
+                    ContainerSchema.PropertyOrder[order2Column.Value][1..];
+                ordering += ",";
+                ordering += order2Dir == "desc" ? "desc" : "asc";
+            }
+            if (order3Column.HasValue)
+            {
+                sorting += ",";
+                sorting += ContainerSchema.PropertyOrder[order3Column.Value][..1].ToLower() +
+                    ContainerSchema.PropertyOrder[order3Column.Value][1..];
+                ordering += ",";
+                ordering += order3Dir == "desc" ? "desc" : "asc";
+            }
+            if (order4Column.HasValue)
+            {
+                sorting += ",";
+                sorting += ContainerSchema.PropertyOrder[order4Column.Value][..1].ToLower() +
+                    ContainerSchema.PropertyOrder[order4Column.Value][1..];
+                ordering += ",";
+                ordering += order3Dir == "desc" ? "desc" : "asc";
+            }
+            if (order5Column.HasValue)
+            {
+                sorting += ",";
+                sorting += ContainerSchema.PropertyOrder[order5Column.Value][..1].ToLower() +
+                    ContainerSchema.PropertyOrder[order5Column.Value][1..];
+                ordering += ",";
+                ordering += order3Dir == "desc" ? "desc" : "asc";
+            }
 
-                if (!string.IsNullOrEmpty(search1)) {
-                    littleSearchValue[ContainerSchema.PropertyOrder[0][..1].ToLower() +
-                        ContainerSchema.PropertyOrder[0][1..]] = search1;
-                }
-                if (!string.IsNullOrEmpty(search2))
-                {
-                    littleSearchValue[ContainerSchema.PropertyOrder[1][..1].ToLower() +
-                        ContainerSchema.PropertyOrder[1][1..]] = search2;
-                }
-                if (!string.IsNullOrEmpty(search3))
-                {
-                    littleSearchValue[ContainerSchema.PropertyOrder[2][..1].ToLower() +
-                        ContainerSchema.PropertyOrder[2][1..]] = search3;
-                }
-                if (!string.IsNullOrEmpty(search4))
-                {
-                    littleSearchValue[ContainerSchema.PropertyOrder[3][..1].ToLower() +
-                        ContainerSchema.PropertyOrder[3][1..]] = search4;
-                }
-                if (!string.IsNullOrEmpty(search5))
-                {
-                    littleSearchValue[ContainerSchema.PropertyOrder[4][..1].ToLower() +
-                        ContainerSchema.PropertyOrder[4][1..]] = search5;
-                }
-                if (!string.IsNullOrEmpty(search6))
-                {
-                    littleSearchValue[ContainerSchema.PropertyOrder[5][..1].ToLower() +
-                        ContainerSchema.PropertyOrder[5][1..]] = search6;
-                }
+            if (!string.IsNullOrEmpty(search1))
+            {
+                littleSearchValue[ContainerSchema.PropertyOrder[0][..1].ToLower() +
+                    ContainerSchema.PropertyOrder[0][1..]] = search1;
+            }
+            if (!string.IsNullOrEmpty(search2))
+            {
+                littleSearchValue[ContainerSchema.PropertyOrder[1][..1].ToLower() +
+                    ContainerSchema.PropertyOrder[1][1..]] = search2;
+            }
+            if (!string.IsNullOrEmpty(search3))
+            {
+                littleSearchValue[ContainerSchema.PropertyOrder[2][..1].ToLower() +
+                    ContainerSchema.PropertyOrder[2][1..]] = search3;
+            }
+            if (!string.IsNullOrEmpty(search4))
+            {
+                littleSearchValue[ContainerSchema.PropertyOrder[3][..1].ToLower() +
+                    ContainerSchema.PropertyOrder[3][1..]] = search4;
+            }
+            if (!string.IsNullOrEmpty(search5))
+            {
+                littleSearchValue[ContainerSchema.PropertyOrder[4][..1].ToLower() +
+                    ContainerSchema.PropertyOrder[4][1..]] = search5;
+            }
+            if (!string.IsNullOrEmpty(search6))
+            {
+                littleSearchValue[ContainerSchema.PropertyOrder[5][..1].ToLower() +
+                    ContainerSchema.PropertyOrder[5][1..]] = search6;
+            }
 
-                var containers = await context.GetContainersPaginatedAsync(
-                    new(pageStart, 
-                        pageSize, 
-                        string.IsNullOrEmpty(sorting) ? null : sorting, 
-                        string.IsNullOrEmpty(ordering) ? null : ordering, 
-                        littleSearchValue,
-                        globalSearchValue), 
-                    cancellationToken);
+            var containers = await context.GetContainersPaginatedAsync(
+                new(pageStart,
+                    pageSize,
+                    string.IsNullOrEmpty(sorting) ? null : sorting,
+                    string.IsNullOrEmpty(ordering) ? null : ordering,
+                    littleSearchValue,
+                    globalSearchValue),
+                cancellationToken);
 
-                var ajaxResponse = new AjaxContainer<ContainerSchema>(
-                    Draw: draw,
-                    RecordsTotal: containers.TotalCount,
-                    RecordsFiltered: containers.TotalCount,
-                    Data: containers.Data
-                );
-                return TypedResults.Ok(ajaxResponse);
-            })
-            .WithTags("Containers");
+            var ajaxResponse = new AjaxContainer<ContainerSchema>(
+                Draw: draw,
+                RecordsTotal: containers.TotalCount,
+                RecordsFiltered: containers.TotalCount,
+                Data: containers.Data
+            );
+            return TypedResults.Ok(ajaxResponse);
+        })
+            .WithTags("Containers")
+            .WithDescription("Returns a filtered, sorted and paginated view of the containers. This is database optimized.")
+            .WithOpenApi();
 
         builder.MapPost("/containers", async Task<Results<Ok<BulkImportResult>, BadRequest>> (
             [FromBody] List<ContainerSchema> containers,
@@ -146,10 +153,12 @@ public static class ContainerEndpoints
         {
             return TypedResults.Ok(await service.ImportContainers(containers, cancellationToken));
         })
-            .WithTags("Containers");
+            .WithTags("Containers")
+            .WithDescription("Bulk import endpoint. The data will be validated for ID collision and physical collision.")
+            .WithOpenApi();
 
         builder.MapPost("/containers/validate", async Task<Ok<List<string>>> (
-            [FromServices] ApplicationDbContext context,
+            [FromServices] IApplicationDbContext context,
             [FromServices] ContainerService service,
             CancellationToken cancellationToken) =>
         {
@@ -160,7 +169,9 @@ public static class ContainerEndpoints
                 .Select(_ => _.Key)
                 .ToList());
         })
-            .WithTags("Containers");
+            .WithTags("Containers")
+            .WithDescription("This is a helper endpoint that validates the already existing containers in the database.")
+            .WithOpenApi();
 
         return builder;
     }

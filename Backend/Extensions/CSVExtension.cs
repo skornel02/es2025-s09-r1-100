@@ -3,8 +3,8 @@
 public static class CSVExtension
 {
     public static async Task<List<List<string>>> ParseCsvAsync(
-        this IFormFile file, 
-        string separator = ",", 
+        this IFormFile file,
+        string separator = ",",
         CancellationToken cancellationToken = default)
     {
         using var contentStream = file.OpenReadStream();
