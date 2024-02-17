@@ -71,8 +71,17 @@ To follow clean architecture the backend and communication as been split into tw
 
 When started in Development mode the navigation bar will contain a page for API documentation.
 
+## Used technologies
+
+- [.NET 8](https://dotnet.microsoft.com/)
+- [Node.js](https://nodejs.org/en)
+- [json-server](https://www.npmjs.com/package/json-server)
+- [Razor (.NET)](https://learn.microsoft.com/en-us/aspnet/core/razor-pages)
+- [Bootstrap](https://getbootstrap.com/)
+- [JQuery](https://jquery.com/)
+- [AFrame](https://aframe.io/)
+- [Datatable](https://datatables.net/)
+
 ## Disclosure
 
 > Data management (Update, delete) would be a separate service sold separately.
-
-> The project requires active internet connection for correct 3D rendering.
