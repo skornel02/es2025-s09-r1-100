@@ -1,0 +1,43 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: .NET Release
+
+on: 
+  push:
+    tags: 
+      - v*
+
+permissions: 
+  contents: write  
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Restore dependencies backend
+      run: dotnet restore
+    - name: Build backend
+      run: dotnet build -c Release --no-restore
+    - name: Publish Task 1 (api)
+      run: dotnet publish ./Backend/Backend.csproj -c Release -p:Publishdir=../Release
+
+    # zip ./Release folder
+    - name: Zip release up 
+      uses: montudor/action-zip@v1
+      with:
+        args: zip -qq -r Release.zip ./Release
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/v')
+      with:
+        files: |
+          Release.zip

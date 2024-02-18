@@ -32,6 +32,15 @@ The server will start up on port `:3001`
 
 **Warning!** An instance of database must be running on `:3000` for correct results.
 
+### Tests
+
+To run tests use the following command:
+
+```bash
+dotnet restore
+dotnet test
+```
+
 ## Configuration
 
 The program can be configured in a JSON configuration file: `./Backend/appsettings.json`. 
@@ -81,6 +90,10 @@ When started in Development mode the navigation bar will contain a page for API 
 - [JQuery](https://jquery.com/)
 - [AFrame](https://aframe.io/)
 - [Datatable](https://datatables.net/)
+
+## Added functionality
+
+This solution works with any size or dimension. The only limitation is that the blocks will be placed in a square shape. Use the configuration file to change the size of blocks or block count. 
 
 ## Disclosure
 
