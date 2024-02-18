@@ -1,5 +1,7 @@
 # EuroSkills 2025 Preliminary Round
 
+[![.NET Test](https://github.com/skornel02/es2025-s09-r1-100/actions/workflows/dotnet-test.yml/badge.svg?branch=main)](https://github.com/skornel02/es2025-s09-r1-100/actions/workflows/dotnet-test.yml)
+
 ## Project setup
 
 ### Database
