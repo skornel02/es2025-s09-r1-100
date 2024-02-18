@@ -3,39 +3,39 @@
 
 name: .NET Release
 
-on: 
+on:
   push:
-    tags: 
+    tags:
       - v*
 
-permissions: 
-  contents: write  
+permissions:
+  contents: write
 
 jobs:
   release:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 8.0.x
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
 
-    - name: Restore dependencies backend
-      run: dotnet restore
-    - name: Build backend
-      run: dotnet build -c Release --no-restore
-    - name: Publish Task 1 (api)
-      run: dotnet publish ./Backend/Backend.csproj -c Release -p:Publishdir=../Release
+      - name: Restore dependencies backend
+        run: dotnet restore
+      - name: Build backend
+        run: dotnet build -c Release --no-restore
+      - name: Publish Task 1 (api)
+        run: dotnet publish ./Backend/Backend.csproj -c Release -p:Publishdir=../Release
 
-    # zip ./Release folder
-    - name: Zip release up 
-      run: Compress-Archive -Path ./Release/* -Destination Release.zip
+      # zip ./Release folder
+      - name: Zip release up
+        run: Compress-Archive -Path ./Release/* -Destination Release.zip
 
-    - name: Release
-      uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/v')
-      with:
-        files: |
-          Release.zip
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/v')
+        with:
+          files: |
+            Release.zip
