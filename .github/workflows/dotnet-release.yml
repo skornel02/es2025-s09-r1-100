@@ -31,9 +31,7 @@ jobs:
 
     # zip ./Release folder
     - name: Zip release up 
-      uses: montudor/action-zip@v1
-      with:
-        args: zip -qq -r Release.zip ./Release
+      run: Compress-Archive -Path ./Release/* -Destination Release.zip
 
     - name: Release
       uses: softprops/action-gh-release@v1
