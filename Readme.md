@@ -32,6 +32,10 @@ The server will start up on port `:3001`
 
 **Warning!** An instance of database must be running on `:3000` for correct results.
 
+### Frontend
+
+The frontend is integrated into the Backend. The server will start up on port `:3001` if you wish to access it open a browser and navigate to `https://localhost:3001/` or `http://localhost:3001/` if you are not using a development certificate.
+
 ### Tests
 
 To run tests use the following command:
